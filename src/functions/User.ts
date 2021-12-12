@@ -3,6 +3,12 @@ import { APIGatewayProxyHandler } from "aws-lambda"
 // import "source-map-support/register";
 import * as Database from "@utilities/Database"
 
+type moneyTransferRequestData = {
+    senderId: string
+    receiverId: string
+    amount: number
+}
+
 export const getUsers: APIGatewayProxyHandler = async (_event, _context ) => {
     
     const users = await Database.selectAllUsers()
@@ -63,10 +69,54 @@ export const increaseUserBalance: APIGatewayProxyHandler = async (event, _contex
         }
     }
     const newBalance = user.balance.plus(amount)
-    await Database.updateUserBalance(userId, newBalance)
+    const newUser =  await Database.updateUserBalance(userId, newBalance)
     return {
         statusCode: 202,
-        body: JSON.stringify({message:"User balance updated"})
+        body: JSON.stringify({
+            message:"User balance updated",
+            data: newUser
+        })
     }
 }
+
+export const transferMoneyBetweenTwoUsers: APIGatewayProxyHandler = async (event, _context) => {
+    if (!event.body){
+        return {
+            statusCode:400,
+            body: JSON.stringify({message:"Request body empty"})
+        }
+    }
+    const transferData: moneyTransferRequestData = JSON.parse(event.body)
+    const sender = await Database.selectUser(transferData.senderId)
+    if (!sender){
+        return {
+            statusCode:404,
+            body: JSON.stringify({message:"User with given email not found"})
+        }
+    }
+    const receiver = await Database.selectUser(transferData.receiverId)
+    if (!receiver){
+        return {
+            statusCode:404,
+            body: JSON.stringify({message:"User with given email not found"})
+        }
+    }
+    if (sender.balance.lessThan(transferData.amount)){
+        return {
+                statusCode:406,
+                body: JSON.stringify({message:"Insufficient Funds"})
+        }
+    }
+    const newSenderBalance = sender.balance.minus(transferData.amount)
+    const newReceiverBalance = receiver.balance.plus(transferData.amount)
+    const newSender = await Database.updateUserBalance(sender.email, newSenderBalance)
+    const newReceiver = await Database.updateUserBalance(receiver.email, newReceiverBalance)
+    return {
+        statusCode: 202,
+        body: JSON.stringify({
+            message: "Money Transfer accepted",
+            data: [newSender, newReceiver]
+        })
+    }
     
+}

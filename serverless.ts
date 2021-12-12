@@ -76,6 +76,16 @@ const serverlessConfiguration: AWS = {
                     cors:true
                 }
             }]
+        },
+        moneyTransfer:{
+            handler: "src/functions/User.transferMoneyBetweenTwoUsers",
+            events:[{
+                http:{
+                    path:"users/transfer",
+                    method:"post",
+                    cors:true
+                }
+            }]
         }
     },
     custom: {

@@ -60,10 +60,17 @@ export const createShoppingOrder: APIGatewayProxyHandler = async (event, _contex
                 quantity: quantity,
                 total: total
             }})
-    await Database.insertOrderDetails(details)
-    await Database.updateUserBalance(user.email, newBalance)
+    const detailsResponse = await Database.insertOrderDetails(details)
+    const newUser = await Database.updateUserBalance(user.email, newBalance)
     return {
         statusCode:201,
-        body:JSON.stringify({message: "Shopping order created"})
+        body:JSON.stringify({
+            message: "Shopping order created",
+            data: {
+                user: newUser,
+                numberOfItems: detailsResponse.count,
+                orderTotal: order.total
+            }
+        })
     }
 }
