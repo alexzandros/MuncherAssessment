@@ -2,10 +2,6 @@ import assert from "assert"
 import requestBuilder from "supertest"
 import * as Database from "../src/utilities/Database"
 
-// const assert = require("assert")
-// const requestBuilder = require("supertest")
-// const Database = require("../src/utilities/Database")
-
 const userToInsert1 = {
     email: "pedro@perez.com",
     name: "Pedro Perez",
@@ -27,6 +23,31 @@ const transferData = {
     "receiverId": "pedro@perez.com",
     "amount": 200000
 }
+
+const rejectedOrderData = {
+    userId: "lucas@campo.com",
+    products: [{
+        productId: "17aa7d01-bceb-da97-1f55-f989fa382193",
+        quantity: 2
+    },
+    {   
+        productId: "56ac7d01-057b-feb3-7693-074066e3ba7c",
+        quantity: 1
+    }]
+}
+
+const createdOrderData = {
+    userId: "pedro@perez.com",
+    products: [{
+        productId: "17aa7d01-bceb-da97-1f55-f989fa382193",
+        quantity: 2
+    },
+    {   
+        productId: "56ac7d01-057b-feb3-7693-074066e3ba7c",
+        quantity: 1
+    }]
+}
+
 
 const request = requestBuilder("http://localhost:3000/dev")
 
@@ -105,4 +126,34 @@ describe("Users", () => {
                 })
                 .end(done)
         })
-    })})
+    })
+    describe("Order creation", () => {
+        it("Should reject order is cost is greater than user balance", (done) => {
+            request
+                .post("/shoppingOrders")
+                .send(rejectedOrderData)
+                .expect(406)
+                .expect({message:"Insufficient Funds"})
+                .end(done)
+        })
+        it("Should update user balance on order creation", (done) => {
+            request
+            .post("/shoppingOrders")
+            .send(createdOrderData)
+            .expect(201)
+            .expect({
+                message: "Shopping order created",
+                data: {
+                    user: {
+                        email: "pedro@perez.com",
+                        name: "Pedro Perez",
+                        balance: "125000"
+                    },
+                    numberOfItems: 2,
+                    orderTotal: "525000"
+                }
+            })
+            .end(done)
+        })
+    })
+})
