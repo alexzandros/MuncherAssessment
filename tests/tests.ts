@@ -52,6 +52,8 @@ const createdOrderData = {
 const request = requestBuilder("http://localhost:3000/dev")
 
 before(async () => {
+    await Database.deleteOrderDetails()
+    await Database.deleteShoppingOrders()
     await Database.deleteUser(userToInsert1.email);
     await Database.deleteUser(userToInsert2.email);
     await Database.deleteUser(userToInsert3.email);
@@ -128,7 +130,7 @@ describe("Users", () => {
         })
     })
     describe("Order creation", () => {
-        it("Should reject order is cost is greater than user balance", (done) => {
+        it("Should reject order if cost is greater than user balance", (done) => {
             request
                 .post("/shoppingOrders")
                 .send(rejectedOrderData)

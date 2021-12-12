@@ -1,15 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda"
 import { Decimal } from "@prisma/client/runtime"
 import * as Database from "@utilities/Database"
-
-type OrderCreationRequestData = {
-    userId: string
-    products: {
-        productId: string,
-        quantity: number
-    }[]
-}
-
+import { OrderCreationRequestData } from "@utilities/Types"
 
 export const createShoppingOrder: APIGatewayProxyHandler = async (event, _context) => {
     if (!event.body){

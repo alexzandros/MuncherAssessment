@@ -1,12 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda"
 // import "source-map-support/register";
 import * as Database from "@utilities/Database"
-
-type moneyTransferRequestData = {
-    senderId: string
-    receiverId: string
-    amount: number
-}
+import { moneyTransferRequestData } from "@utilities/Types"
 
 export const getUsers: APIGatewayProxyHandler = async (_event, _context ) => {
     
