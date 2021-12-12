@@ -62,7 +62,7 @@ export const increaseUserBalance: APIGatewayProxyHandler = async (event, _contex
             body: JSON.stringify({message: "User with given email not found"})
         }
     }
-    const newBalance = Decimal.sum(user.balance, amount)
+    const newBalance = user.balance.plus(amount)
     await Database.updateUserBalance(userId, newBalance)
     return {
         statusCode: 202,
@@ -70,23 +70,3 @@ export const increaseUserBalance: APIGatewayProxyHandler = async (event, _contex
     }
 }
     
-// const updateUserBalance = async  (email: string, balance: Decimal) => {
-//     const prisma = new PrismaClient()
-//     await prisma.user.update({where:{email: email}, data:{balance}})
-// }
-
-// const selectUser = async (email: string) => {
-//     const prisma = new PrismaClient()
-//     const user = await prisma.user.findUnique({where: {email}})
-//     return user
-// }
-
-// const insertUser = async(userData: any) => {
-//     const prisma = new PrismaClient()
-//     await prisma.user.create({data: userData})
-// }
-
-// const selectAllUsers = async () => {
-//     const prisma = new PrismaClient()
-//     return await prisma.user.findMany()
-// }

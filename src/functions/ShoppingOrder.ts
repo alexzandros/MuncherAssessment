@@ -1,10 +1,69 @@
 import { APIGatewayProxyHandler } from "aws-lambda"
-import { PrismaClient } from "@prisma/client"
+import { Decimal } from "@prisma/client/runtime"
+import * as Database from "@utilities/Database"
+
+type OrderCreationRequestData = {
+    userId: string
+    products: {
+        productId: string,
+        quantity: number
+    }[]
+}
 
 
 export const createShoppingOrder: APIGatewayProxyHandler = async (event, _context) => {
+    if (!event.body){
+        return {
+            statusCode:400,
+            body: JSON.stringify({message:"Request body empty"})
+        }
+    }
+    const orderData: OrderCreationRequestData = JSON.parse(event.body)
+    const user = await Database.selectUser(orderData.userId)
+    if (!user){
+        return{
+            statusCode:404,
+            body: JSON.stringify({message: "User with given email not found"})
+        }
+    }
+    const productIds = orderData.products.map(product => product.productId)
+    const products = await Database.selectProdusctsById(productIds)
+    if (productIds.length !== products.length){
+        return{
+            statusCode: 400,
+            body: JSON.stringify({message:"Wrong product Ids"})
+        }
+    }
+    const orderTotal = products.reduce(
+        (accum, current, idx) => 
+            accum.plus(current.unitPrice.times(orderData.products[idx].quantity)), 
+        new Decimal(0))
+    if (user.balance.lessThan(orderTotal)){
+        return {
+            statusCode:406,
+            body: JSON.stringify({message:"Insufficient Funds"})
+        }
+    }
+    const orderToSave = {
+        userId: user.email,
+        total:orderTotal,
+    }
+    const newBalance = user.balance.minus(orderTotal)
+    const order = await Database.insertShoppingOrder(orderToSave)
+    const details = products.map(
+        (product, idx) => {
+            const quantity = orderData.products[idx].quantity
+            const total = product.unitPrice.times(quantity)
+            return {
+                orderId: order.id,
+                productId: product.productId,
+                quantity: quantity,
+                total: total
+            }})
+    await Database.insertOrderDetails(details)
+    await Database.updateUserBalance(user.email, newBalance)
     return {
-        statusCode:200,
-        body:""
+        statusCode:201,
+        body:JSON.stringify({message: "Shopping order created"})
     }
 }

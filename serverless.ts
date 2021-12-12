@@ -66,6 +66,16 @@ const serverlessConfiguration: AWS = {
                     cors: true
                 }
             }]
+        },
+        createShoppingOrder:{
+            handler: "src/functions/ShoppingOrder.createShoppingOrder",
+            events:[{
+                http:{
+                    path:"shoppingOrders",
+                    method:"post",
+                    cors:true
+                }
+            }]
         }
     },
     custom: {

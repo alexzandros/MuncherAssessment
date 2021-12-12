@@ -8,12 +8,12 @@ datasource db {
 }
 
 model OrderDetail {
-  orderId       BigInt
-  productId     String        @db.Uuid
-  quantity      Int
-  total         Decimal       @db.Decimal(26, 2)
-  order         ShoppingOrder @relation(fields: [orderId], references: [id], map: "orderdetail_fk_1")
-  product       Product       @relation(fields: [productId], references: [productId], map: "orderdetail_fk")
+  orderId   BigInt
+  productId String        @db.Uuid
+  quantity  Int
+  total     Decimal       @db.Decimal(26, 2)
+  order     ShoppingOrder @relation(fields: [orderId], references: [id], map: "orderdetail_fk_1")
+  product   Product       @relation(fields: [productId], references: [productId], map: "orderdetail_fk")
 
   @@id([orderId, productId], map: "_OrderDetail__pk")
 }
@@ -21,21 +21,21 @@ model OrderDetail {
 model Product {
   productId   String        @id(map: "product_pk") @db.Uuid
   description String        @db.VarChar(128)
-  unitPrice   Decimal?      @db.Decimal(26, 2)
+  unitPrice   Decimal       @db.Decimal(26, 2)
   OrderDetail OrderDetail[]
 }
 
 model ShoppingOrder {
-  id          BigInt        @id(map: "shoppingorder_pk") @default(autoincrement())
-  userId      String
-  total       Decimal       @db.Decimal(26, 2)
-  user        User          @relation(fields: [userId], references: [email], map: "shoppingorder_fk")
+  id           BigInt        @id(map: "shoppingorder_pk") @default(autoincrement())
+  userId       String
+  total        Decimal       @db.Decimal(26, 2)
+  user         User          @relation(fields: [userId], references: [email], map: "shoppingorder_fk")
   orderDetails OrderDetail[]
 }
 
 model User {
-  email         String          @id
-  name          String
-  balance       Decimal
+  email          String          @id
+  name           String
+  balance        Decimal
   shoppingOrders ShoppingOrder[]
 }

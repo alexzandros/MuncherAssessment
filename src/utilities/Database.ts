@@ -1,23 +1,42 @@
 import { PrismaClient } from "@prisma/client"
 import { Decimal } from "@prisma/client/runtime"
 
+const prisma = new PrismaClient()
+
 export const updateUserBalance = async  (email: string, balance: Decimal) => {
-    const prisma = new PrismaClient()
-    await prisma.user.update({where:{email: email}, data:{balance}})
+    return await prisma.user.update({where:{email: email}, data:{balance}})
 }
 
 export const selectUser = async (email: string) => {
-    const prisma = new PrismaClient()
     const user = await prisma.user.findUnique({where: {email}})
     return user
 }
 
 export const insertUser = async(userData: any) => {
-    const prisma = new PrismaClient()
-    await prisma.user.create({data: userData})
+    return await prisma.user.create({data: userData})
 }
 
 export const selectAllUsers = async () => {
-    const prisma = new PrismaClient()
     return await prisma.user.findMany()
+}
+
+export const selectAllProducts = async () => {
+    return await prisma.product.findMany()
+}
+
+export const selectProdusctsById = async (productIds: string[]) => {
+    const products = await  prisma.product.findMany(
+        {
+            where:{
+                productId: {
+                    in: productIds}}})
+    return products
+}
+
+export const insertShoppingOrder = async (orderData: any) => {
+    return await prisma.shoppingOrder.create({data:orderData})
+}
+
+export const insertOrderDetails = async (orderDetails: any) => {
+    return  await prisma.orderDetail.createMany({data: orderDetails})
 }
