@@ -28,6 +28,35 @@ const serverlessConfiguration: AWS = {
                 }
             }]
         },
+        createUser:{
+            handler:"src/functions/User.createUser",
+            events:[{
+                http:{
+                    path:"users",
+                    method:"post",
+                    cors:true
+                }
+            }]
+        },
+        increaseUserBalance:{
+            handler:"src/functions/User.increaseUserBalance",
+            events:[{
+                http:
+                {
+                    path: "users",
+                    method: "put",
+                    cors: true,
+                    request:{
+                        parameters:{
+                            querystrings:{
+                                userId:true,
+                                amount: true
+                            }
+                        }
+                    }
+                }
+            }]
+        },
         getProducts:{
             handler:"src/functions/Product.getProducts",
             events:[{
