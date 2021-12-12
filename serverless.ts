@@ -82,7 +82,7 @@ const serverlessConfiguration: AWS = {
             events:[{
                 http:{
                     path:"users/transfer",
-                    method:"post",
+                    method:"put",
                     cors:true
                 }
             }]

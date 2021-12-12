@@ -1,4 +1,3 @@
-import { Decimal } from "@prisma/client/runtime"
 import { APIGatewayProxyHandler } from "aws-lambda"
 // import "source-map-support/register";
 import * as Database from "@utilities/Database"

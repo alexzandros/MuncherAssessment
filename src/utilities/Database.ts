@@ -15,6 +15,12 @@ export const selectUser = async (email: string) => {
     return user
 }
 
+export const deleteUser = async (email: string) => {
+    const deleteUserResponse = await prisma.user.deleteMany({where: {email}})
+    await prisma.$disconnect()
+    return deleteUserResponse
+}
+
 export const insertUser = async(userData: any) => {
     const user =  await prisma.user.create({data: userData})
     await prisma.$disconnect()
@@ -57,3 +63,4 @@ export const insertOrderDetails = async (orderDetails: any) => {
     await prisma.$disconnect()
     return detailsResponse
 }
+
